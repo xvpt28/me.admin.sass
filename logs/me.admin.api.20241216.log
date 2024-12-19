@@ -1,0 +1,3 @@
+2024-12-16 16:50:53.394 +08:00 [ERR] 23502: null value in column "CreatedAt" of relation "tblUser" violates not-null constraint
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
