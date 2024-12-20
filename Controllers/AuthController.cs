@@ -8,15 +8,15 @@ namespace me.admin.api.Controllers;
 [ApiController]
 public class AuthController(AuthService authService) : ControllerBase
 {
-	readonly AuthService _authService = authService;
+    readonly AuthService _authService = authService;
 
-	[HttpPost("Login")]
-	public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequest)
-	{
-		var response = await _authService.Login(loginRequest);
+    [HttpPost("Login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequest)
+    {
+        var response = await _authService.Login(loginRequest);
 
-		if (response.Success)
-			return Ok(response);
-		return Unauthorized(response);
-	}
+        if (response.Success)
+            return Ok(response);
+        return Unauthorized(response);
+    }
 }

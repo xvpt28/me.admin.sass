@@ -8,14 +8,44 @@ namespace me.admin.api.Controllers;
 [ApiController]
 public class MenuController(MenuService menuService) : ControllerBase
 {
-	readonly MenuService _menuService = menuService;
+    readonly MenuService _menuService = menuService;
 
-	[HttpPost("new")]
-	public async Task<IActionResult> CreateMenu([FromRoute] string outletId, [FromBody] CreateMenuDto body)
-	{
-		var response = await _menuService.CreateMenu(body);
-		if (response.Success)
-			return Ok(response);
-		return Unauthorized(response);
-	}
+    [HttpPost("new")]
+    public async Task<IActionResult> CreateMenu([FromBody] CreateMenuDto body)
+    {
+        var response = await _menuService.CreateMenu(body);
+        if (response.Success)
+            return Ok(response);
+        return Unauthorized(response);
+    }
+
+    [HttpGet("all/{outletId}")]
+    public async Task<IActionResult> GetAllMenu([FromRoute] string outletId)
+    {
+        var response = await _menuService.GetAllMenuByOutlet(outletId);
+        if (response.Success)
+            return Ok(response);
+        return Unauthorized(response);
+    }
+
+    [HttpPut("{menuId}")]
+    public async Task<IActionResult> UpdateMenuById(
+        [FromRoute] string menuId,
+        [FromBody] UpdateMenuDto body
+    )
+    {
+        var response = await _menuService.UpdateMenuById(menuId, body);
+        if (response.Success)
+            return Ok(response);
+        return Unauthorized(response);
+    }
+
+    [HttpDelete("{menuId}")]
+    public async Task<IActionResult> DeleteMenuById([FromRoute] string menuId)
+    {
+        var response = await _menuService.DeleteMenuById(menuId);
+        if (response.Success)
+            return Ok(response);
+        return Unauthorized(response);
+    }
 }

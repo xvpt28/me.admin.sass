@@ -7,3 +7,9 @@ public class CreateMenuDto
 	public required double Price { get; set; }
 	public required string Unit { get; set; }
 }
+
+public class UpdateMenuDto {
+	public string? Name { get; set; }
+	public double? Price { get; set; }
+	public string? Unit { get; set; }
+}

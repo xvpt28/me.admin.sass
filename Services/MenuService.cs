@@ -35,4 +35,35 @@ public class MenuService(MenuRepository menuRepository)
 			return new BaseResponse<string> { Success = false, Message = e.Message };
 		}
 	}
+
+	public async Task<BaseResponse<List<Menu>>> GetAllMenuByOutlet(string outletId)
+	{
+		var menus = await _menuRepository.GetAll(outletId);
+		return new BaseResponse<List<Menu>>(menus) { Success = true };
+	}
+
+	public async Task<BaseResponse<bool>> UpdateMenuById(string id, UpdateMenuDto request)
+	{
+		try
+		{
+			var menu = await _menuRepository.GetById(id);
+			if (menu == null) return new BaseResponse<bool> { Success = false, Message = "Menu not found" };
+			menu.Name = request.Name ?? menu.Name;
+			menu.Price = request.Price ?? menu.Price;
+			menu.Unit = request.Unit ?? menu.Unit;
+			await _menuRepository.Update(menu);
+			return new BaseResponse<bool> { Success = true };
+		}
+		catch (Exception e)
+		{
+			Log.Logger.Error(e.Message, "Error updating menu");
+			return new BaseResponse<bool> { Success = false, Message = e.Message };
+		}
+	}
+
+	public async Task<BaseResponse<bool>> DeleteMenuById(string id)
+	{
+		await _menuRepository.Delete(id);
+		return new BaseResponse<bool> { Success = true };
+	}
 }
