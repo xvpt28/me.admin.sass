@@ -74,4 +74,49 @@ public class DailyRecordService(DailyRecordRepository dailyRecordRepository, Aut
 			return new BaseResponse<List<GetDailyRecordResponseDto>> { Success = false, Message = e.Message };
 		}
 	}
+
+	public async Task<BaseResponse<bool>> UpdateDailyRecord(string id, UpdateDailyRecordRequestDto request)
+	{
+		try
+		{
+			var response = await _dailyRecordRepository.GetById(id);
+			if (response == null)
+			{
+				throw new Exception("Record is not found");
+			}
+			var currentTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+			var entity = new DailyRecord
+			{
+				RecordId = id,
+				OutletId = response.OutletId,
+				RecordDate = request.RecordDate ?? response.RecordDate,
+				Revenue = request.Revenue ?? response.Revenue,
+				Cash = request.Cash ?? response.Cash,
+				CreatedBy = response.CreatedBy,
+				CreatedAt = response.CreatedAt,
+				UpdatedAt = currentTimestamp
+			};
+			await _dailyRecordRepository.Update(entity);
+			return new BaseResponse<bool>(true) { Success = true };
+		}
+		catch (Exception e)
+		{
+			Log.Logger.Error(e.Message, "Error updating daily record");
+			return new BaseResponse<bool> { Success = false, Message = e.Message };
+		}
+	}
+
+	public async Task<BaseResponse<bool>> DeleteDailyRecord(string id)
+	{
+		try
+		{
+			await _dailyRecordRepository.Delete(id);
+			return new BaseResponse<bool>(true) { Success = true };
+		}
+		catch (Exception e)
+		{
+			Log.Logger.Error(e.Message, "Error deleting daily record");
+			return new BaseResponse<bool> { Success = false, Message = e.Message };
+		}
+	}
 }

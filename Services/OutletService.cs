@@ -74,4 +74,51 @@ public class OutletService(OutletRepository outletRepository)
 			return new BaseResponse<List<Outlet>> { Success = false, Message = e.Message };
 		}
 	}
+
+	public async Task<BaseResponse<bool>> UpdateOutlet(string id, UpdateOutletRequestDto request)
+	{
+		try
+		{
+			var response = await _outletRepository.GetById(id);
+			if (response == null)
+			{
+				throw new Exception("Outlet not found");
+			}
+
+			var currentTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+			var entity = new Outlet
+			{
+				OutletId = id,
+				OutletName = request.OutletName ?? response.OutletName,
+				OutletAddress = request.OutletAddress ?? response.OutletName,
+				OutletPostcode = request.OutletPostcode ?? response.OutletPostcode,
+				OutletPhoneNumber = request.OutletPhoneNumber ?? response.OutletPhoneNumber,
+				OutletStatus = request.OutletStatus ?? response.OutletStatus,
+				CreatedAt = response.CreatedAt,
+				UpdatedAt = currentTimestamp
+			};
+
+			await _outletRepository.Update(entity);
+			return new BaseResponse<bool>(true) { Success = true };
+		}
+		catch (Exception e)
+		{
+			Log.Logger.Error(e.Message, "Error updating outlet");
+			return new BaseResponse<bool> { Success = false, Message = e.Message };
+		}
+	}
+
+	public async Task<BaseResponse<bool>> DeleteOutlet(string id)
+	{
+		try
+		{
+			await _outletRepository.Delete(id);
+			return new BaseResponse<bool>(true) { Success = true };
+		}
+		catch (Exception e)
+		{
+			Log.Logger.Error(e.Message, "Error deleting outlet");
+			return new BaseResponse<bool> { Success = false, Message = e.Message };
+		}
+	}
 }

@@ -22,6 +22,8 @@ builder.Services.AddSingleton<UserRepository, UserRepository>();
 builder.Services.AddSingleton<OutletRepository, OutletRepository>();
 builder.Services.AddSingleton<DailyRecordRepository, DailyRecordRepository>();
 builder.Services.AddSingleton<MenuRepository, MenuRepository>();
+builder.Services.AddSingleton<OrderRepository, OrderRepository>();
+builder.Services.AddSingleton<OrderItemRepository, OrderItemRepository>();
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 /*                                                      Services                                                      */
@@ -30,6 +32,8 @@ builder.Services.AddSingleton<UserService, UserService>();
 builder.Services.AddSingleton<OutletService, OutletService>();
 builder.Services.AddSingleton<DailyRecordService, DailyRecordService>();
 builder.Services.AddSingleton<MenuService, MenuService>();
+builder.Services.AddSingleton<OrderService, OrderService>();
+builder.Services.AddSingleton<OrderItemService, OrderItemService>();
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 /*                                                       Options                                                      */

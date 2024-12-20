@@ -12,6 +12,8 @@ public class DbSynchronizeSchema(AppDbContext appDbContext)
 		// SynchronizeTable<Outlet>();
 		// SynchronizeTable<DailyRecord>();
 		// SynchronizeTable<Menu>();
+		// SynchronizeTable<Order>();
+		// SynchronizeTable<OrderItem>();
 	}
 
 	void SynchronizeTable<T>() where T : class
