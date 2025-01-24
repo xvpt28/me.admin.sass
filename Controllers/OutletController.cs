@@ -21,6 +21,7 @@ public class OutletController(OutletService outletService) : ControllerBase
 		return Unauthorized(response);
 	}
 
+	[Authorize]
 	[HttpGet("all")]
 	public async Task<IActionResult> GetAllOutlets()
 	{
@@ -32,7 +33,7 @@ public class OutletController(OutletService outletService) : ControllerBase
 	}
 
 	[Authorize(Roles = "SuperAdmin")]
-	[HttpPost("new")]
+	[HttpPost("create")]
 	public async Task<IActionResult> CreateOutlet([FromBody] CreateOutletRequestDto body)
 	{
 		var response = await _outletService.CreateOutlet(body);
@@ -43,8 +44,11 @@ public class OutletController(OutletService outletService) : ControllerBase
 	}
 
 	[Authorize(Roles = "SuperAdmin")]
-	[HttpPut("{outletId}")]
-	public async Task<IActionResult> UpdateOutlet([FromRoute] string outletId, [FromBody] UpdateOutletRequestDto body)
+	[HttpPut("update/{outletId}")]
+	public async Task<IActionResult> UpdateOutlet(
+		[FromRoute] string outletId,
+		[FromBody] UpdateOutletRequestDto body
+	)
 	{
 		var response = await _outletService.UpdateOutlet(outletId, body);
 

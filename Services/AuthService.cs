@@ -11,7 +11,12 @@ using Serilog;
 
 namespace me.admin.api.Services;
 
-public class AuthService(UserRepository userRepository, IOptions<AuthorizationSetting> authorizationSettings, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+public class AuthService(
+	UserRepository userRepository,
+	IOptions<AuthorizationSetting> authorizationSettings,
+	IMapper mapper,
+	IHttpContextAccessor httpContextAccessor
+)
 {
 	readonly AuthorizationSetting _authorizationSettings = authorizationSettings.Value;
 	readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
@@ -20,9 +25,14 @@ public class AuthService(UserRepository userRepository, IOptions<AuthorizationSe
 
 	public string? GetUserId()
 	{
-		if (_httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.User.Identity != null)
+		if (
+			_httpContextAccessor.HttpContext != null
+			&& _httpContextAccessor.HttpContext.User.Identity != null
+			)
 		{
-			var userId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+			var userId = _httpContextAccessor
+				.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId")
+				?.Value;
 			return userId;
 		}
 
@@ -35,11 +45,13 @@ public class AuthService(UserRepository userRepository, IOptions<AuthorizationSe
 		{
 			var user = await _userRepository.GetUserByEmail(loginRequest.Email);
 
-			if (user == null) throw new Exception("Invalid username or password");
+			if (user == null)
+				throw new Exception("Invalid username or password");
 			if (!EncryptionUtils.VerifyPassword(loginRequest.Password, user.PasswordHash))
 				throw new Exception("Invalid username or password");
 
-			if (user.IsActive == false) throw new Exception("User is not active");
+			if (user.IsActive == false)
+				throw new Exception("User is not active");
 
 			var userInfo = _mapper.Map<UserInfoForTokenDto>(user);
 			var loginToken = GenerateJwtToken(userInfo);
@@ -59,22 +71,28 @@ public class AuthService(UserRepository userRepository, IOptions<AuthorizationSe
 		var tokenHandler = new JwtSecurityTokenHandler();
 		var key = Encoding.ASCII.GetBytes(_authorizationSettings.JwtSecret);
 
-		var subject = new ClaimsIdentity(new[]
-		{
-			new Claim("UserId", userInfo.UserId),
-			new Claim(ClaimTypes.Name, userInfo.FullName),
-			new Claim(ClaimTypes.Email, userInfo.Email),
-			new Claim(ClaimTypes.Role, userInfo.Role)
-		});
+		var subject = new ClaimsIdentity(
+			new[]
+			{
+				new Claim("UserId", userInfo.UserId),
+				new Claim(ClaimTypes.Name, userInfo.FullName),
+				new Claim(ClaimTypes.Email, userInfo.Email),
+				new Claim(ClaimTypes.Role, userInfo.Role)
+			}
+		);
 
-		var tokenExpiry = DateTimeOffset.UtcNow.AddMinutes(_authorizationSettings.JwtExpirationInMinutes);
+		var tokenExpiry = DateTimeOffset.UtcNow.AddMinutes(
+			_authorizationSettings.JwtExpirationInMinutes
+		);
 
 		var tokenDescriptor = new SecurityTokenDescriptor
 		{
 			Subject = subject,
 			Expires = tokenExpiry.UtcDateTime,
-			SigningCredentials =
-				new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+			SigningCredentials = new SigningCredentials(
+				new SymmetricSecurityKey(key),
+				SecurityAlgorithms.HmacSha256Signature
+			)
 		};
 
 		var token = tokenHandler.CreateToken(tokenDescriptor);

@@ -10,7 +10,7 @@ public class MenuController(MenuService menuService) : ControllerBase
 {
     readonly MenuService _menuService = menuService;
 
-    [HttpPost("new")]
+    [HttpPost("create")]
     public async Task<IActionResult> CreateMenu([FromBody] CreateMenuDto body)
     {
         var response = await _menuService.CreateMenu(body);
@@ -28,7 +28,7 @@ public class MenuController(MenuService menuService) : ControllerBase
         return Unauthorized(response);
     }
 
-    [HttpPut("{menuId}")]
+    [HttpPut("update/{menuId}")]
     public async Task<IActionResult> UpdateMenuById(
         [FromRoute] string menuId,
         [FromBody] UpdateMenuDto body

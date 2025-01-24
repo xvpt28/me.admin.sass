@@ -17,9 +17,6 @@ public class Menu
 	[Column][NotNull]
 	public required double Price { get; set; }
 
-	[Column][NotNull]
-	public required string Unit { get; set; }
-
 	[Column]
 	public long? DeletedAt { get; set; }
 

@@ -8,59 +8,69 @@ namespace me.admin.api.Controllers;
 [ApiController]
 public class DailyRecordController(DailyRecordService dailyRecordService) : ControllerBase
 {
-    readonly DailyRecordService _dailyRecordService = dailyRecordService;
+	readonly DailyRecordService _dailyRecordService = dailyRecordService;
 
-    [HttpPost("new/{outletId}")]
-    public async Task<IActionResult> CreateDailyRecord(
-        [FromRoute] string outletId,
-        [FromBody] CreateDailyRecordRequestDto body
-    )
-    {
-        var response = await _dailyRecordService.CreateDailyRecord(outletId, body);
-        if (response.Success)
-            return Ok(response);
-        return Unauthorized(response);
-    }
+	[HttpPost("create/{outletId}")]
+	public async Task<IActionResult> CreateDailyRecord(
+		[FromRoute] string outletId,
+		[FromBody] CreateDailyRecordRequestDto body
+	)
+	{
+		var response = await _dailyRecordService.CreateDailyRecord(outletId, body);
+		if (response.Success)
+			return Ok(response);
+		return Unauthorized(response);
+	}
 
-    [HttpPut("{dailyRecordId}")]
-    public async Task<IActionResult> UpdateDailyRecord(
-        [FromRoute] string outletId,
-        [FromBody] UpdateDailyRecordRequestDto body
-    )
-    {
-        var response = await _dailyRecordService.UpdateDailyRecord(outletId, body);
-        if (response.Success)
-            return Ok(response);
-        return Unauthorized(response);
-    }
+	[HttpPut("update/{dailyRecordId}")]
+	public async Task<IActionResult> UpdateDailyRecord(
+		[FromRoute] string dailyRecordId,
+		[FromBody] UpdateDailyRecordRequestDto body
+	)
+	{
+		var response = await _dailyRecordService.UpdateDailyRecord(dailyRecordId, body);
+		if (response.Success)
+			return Ok(response);
+		return Unauthorized(response);
+	}
 
-    [HttpGet("all/{outletId}")]
-    public async Task<IActionResult> GetAllRecordsByOutlet([FromRoute] string outletId)
-    {
-        var response = await _dailyRecordService.GetAllRecordsByOutlet(outletId);
+	[HttpGet("all/{outletId}")]
+	public async Task<IActionResult> GetAllRecordsByOutlet([FromRoute] string outletId)
+	{
+		var response = await _dailyRecordService.GetAllRecordsByOutlet(outletId);
 
-        if (response.Success)
-            return Ok(response);
-        return Unauthorized(response);
-    }
+		if (response.Success)
+			return Ok(response);
+		return Unauthorized(response);
+	}
 
-    [HttpGet("all/date/{date}")]
-    public async Task<IActionResult> GetAllRecordsByDate([FromRoute] long date)
-    {
-        var response = await _dailyRecordService.GetAllRecordsByDate(date);
+	[HttpGet("all/date/{date}")]
+	public async Task<IActionResult> GetAllRecordsByDate([FromRoute] long date)
+	{
+		var response = await _dailyRecordService.GetAllRecordsByDate(date);
 
-        if (response.Success)
-            return Ok(response);
-        return Unauthorized(response);
-    }
+		if (response.Success)
+			return Ok(response);
+		return Unauthorized(response);
+	}
 
-    [HttpDelete("{dailyRecordId}")]
-    public async Task<IActionResult> DeleteRecordById([FromRoute] string id)
-    {
-        var response = await _dailyRecordService.DeleteDailyRecord(id);
+	[HttpGet("{outletId}/{date}")]
+	public async Task<IActionResult> GetAllRecordsByOutletAndDate([FromRoute] string outletId, [FromRoute] long date)
+	{
+		var response = await _dailyRecordService.GetRecordByOutletAndDate(outletId, date);
 
-        if (response.Success)
-            return Ok(response);
-        return Unauthorized(response);
-    }
+		if (response.Success)
+			return Ok(response);
+		return Unauthorized(response);
+	}
+
+	[HttpDelete("{dailyRecordId}")]
+	public async Task<IActionResult> DeleteRecordById([FromRoute] string id)
+	{
+		var response = await _dailyRecordService.DeleteDailyRecord(id);
+
+		if (response.Success)
+			return Ok(response);
+		return Unauthorized(response);
+	}
 }

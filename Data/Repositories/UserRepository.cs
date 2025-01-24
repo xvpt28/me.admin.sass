@@ -11,7 +11,7 @@ public class UserRepository(AppDbContext appDbContext) : IRepository<User>
 	public async Task<List<User>> GetAll()
 	{
 		await using var db = _appDbContext.GetDatabase();
-		return await db.GetTable<User>().Where(x => x.DeletedAt == null).ToListAsync();
+		return await db.GetTable<User>().Where(x => x.DeletedAt == null && x.IsActive == true).ToListAsync();
 	}
 
 	public async Task<User?> GetById(string userId)

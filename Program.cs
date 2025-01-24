@@ -24,6 +24,8 @@ builder.Services.AddSingleton<DailyRecordRepository, DailyRecordRepository>();
 builder.Services.AddSingleton<MenuRepository, MenuRepository>();
 builder.Services.AddSingleton<OrderRepository, OrderRepository>();
 builder.Services.AddSingleton<OrderItemRepository, OrderItemRepository>();
+builder.Services.AddSingleton<ImportanceRepository, ImportanceRepository>();
+builder.Services.AddSingleton<InvoiceRepository, InvoiceRepository>();
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 /*                                                      Services                                                      */
@@ -34,6 +36,8 @@ builder.Services.AddSingleton<DailyRecordService, DailyRecordService>();
 builder.Services.AddSingleton<MenuService, MenuService>();
 builder.Services.AddSingleton<OrderService, OrderService>();
 builder.Services.AddSingleton<OrderItemService, OrderItemService>();
+builder.Services.AddSingleton<ImportanceService, ImportanceService>();
+builder.Services.AddSingleton<InvoiceService, InvoiceService>();
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 /*                                                       Options                                                      */

@@ -1,9 +1,0 @@
-2024-12-20 01:02:26.081 +08:00 [ERR] Error logging in user
-System.Exception: Invalid username or password
-   at me.admin.api.Services.AuthService.Login(LoginRequestDto loginRequest) in /Users/putong/Documents/ME/me.admin/me.admin.api/Services/AuthService.cs:line 38
-2024-12-20 01:02:57.807 +08:00 [ERR] Error logging in user
-System.Exception: Invalid username or password
-   at me.admin.api.Services.AuthService.Login(LoginRequestDto loginRequest) in /Users/putong/Documents/ME/me.admin/me.admin.api/Services/AuthService.cs:line 38
-2024-12-20 01:03:36.851 +08:00 [ERR] Error logging in user
-System.Exception: Invalid username or password
-   at me.admin.api.Services.AuthService.Login(LoginRequestDto loginRequest) in /Users/putong/Documents/ME/me.admin/me.admin.api/Services/AuthService.cs:line 38

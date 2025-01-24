@@ -35,13 +35,13 @@ public class OutletRepository(AppDbContext appDbContext) : IRepository<Outlet>
 	public async Task Delete(string id)
 	{
 		await using var db = _appDbContext.GetDatabase();
-		var user = await db.GetTable<User>().Where(x => x.UserId == id).FirstOrDefaultAsync();
-		if (user == null)
+		var outlet = await db.GetTable<Outlet>().Where(x => x.OutletId == id).FirstOrDefaultAsync();
+		if (outlet == null)
 		{
 			throw new Exception("User not found");
 		}
-		user.DeletedAt = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-		await db.UpdateAsync(user);
+		outlet.DeletedAt = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+		await db.UpdateAsync(outlet);
 	}
 
 	public async Task<Outlet?> GetByOutletName(string outletName)

@@ -21,7 +21,6 @@ public class MenuService(MenuRepository menuRepository)
 				OutletId = request.OutletId,
 				Name = request.Name,
 				Price = request.Price,
-				Unit = request.Unit,
 				CreatedAt = currentTimestamp,
 				UpdatedAt = currentTimestamp
 			};
@@ -50,9 +49,8 @@ public class MenuService(MenuRepository menuRepository)
 			if (menu == null) return new BaseResponse<bool> { Success = false, Message = "Menu not found" };
 			menu.Name = request.Name ?? menu.Name;
 			menu.Price = request.Price ?? menu.Price;
-			menu.Unit = request.Unit ?? menu.Unit;
 			await _menuRepository.Update(menu);
-			return new BaseResponse<bool> { Success = true };
+			return new BaseResponse<bool>(true) { Success = true };
 		}
 		catch (Exception e)
 		{

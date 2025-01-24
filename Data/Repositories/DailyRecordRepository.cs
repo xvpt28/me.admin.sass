@@ -32,7 +32,7 @@ public class DailyRecordRepository(AppDbContext appDbContext)
 				{
 					UserId = user.UserId,
 					Email = user.Email,
-					Fullname = user.Fullname,
+					FullName = user.FullName,
 					Role = user.Role
 				}
 			};
@@ -93,7 +93,7 @@ public class DailyRecordRepository(AppDbContext appDbContext)
 				{
 					UserId = user.UserId,
 					Email = user.Email,
-					Fullname = user.Fullname,
+					FullName = user.FullName,
 					Role = user.Role
 				}
 			};

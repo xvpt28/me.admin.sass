@@ -75,11 +75,26 @@ public class DailyRecordService(DailyRecordRepository dailyRecordRepository, Aut
 		}
 	}
 
-	public async Task<BaseResponse<bool>> UpdateDailyRecord(string id, UpdateDailyRecordRequestDto request)
+	public async Task<BaseResponse<DailyRecord>> GetRecordByOutletAndDate(string outletId, long date)
 	{
 		try
 		{
-			var response = await _dailyRecordRepository.GetById(id);
+			var response = await _dailyRecordRepository.GetByDateAndOutletId(outletId, date);
+			if (response == null) throw new Exception("Record not exist");
+			return new BaseResponse<DailyRecord>(response) { Success = true };
+		}
+		catch (Exception e)
+		{
+			Log.Logger.Error(e.Message, "Error creating daily record");
+			return new BaseResponse<DailyRecord> { Success = false, Message = e.Message };
+		}
+	}
+
+	public async Task<BaseResponse<bool>> UpdateDailyRecord(string dailyRecordId, UpdateDailyRecordRequestDto request)
+	{
+		try
+		{
+			var response = await _dailyRecordRepository.GetById(dailyRecordId);
 			if (response == null)
 			{
 				throw new Exception("Record is not found");
@@ -87,7 +102,7 @@ public class DailyRecordService(DailyRecordRepository dailyRecordRepository, Aut
 			var currentTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 			var entity = new DailyRecord
 			{
-				RecordId = id,
+				RecordId = dailyRecordId,
 				OutletId = response.OutletId,
 				RecordDate = request.RecordDate ?? response.RecordDate,
 				Revenue = request.Revenue ?? response.Revenue,

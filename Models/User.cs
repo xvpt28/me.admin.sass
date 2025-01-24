@@ -15,7 +15,7 @@ public class User
 	public required string PasswordHash { get; set; }
 
 	[Column][NotNull]
-	public required string Fullname { get; set; }
+	public required string FullName { get; set; }
 
 	[Column][NotNull]
 	public long? CreatedAt { get; set; }
