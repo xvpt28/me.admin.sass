@@ -1,5 +1,6 @@
 using me.admin.api.DTOs;
 using me.admin.api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace me.admin.api.Controllers;
@@ -10,6 +11,7 @@ public class OrderItemController(OrderItemService orderItemService) : Controller
 {
 	readonly OrderItemService _orderItemService = orderItemService;
 
+	[Authorize]
 	[HttpGet("all/{orderId}")]
 	public async Task<IActionResult> GetAllOrderItems(
 		[FromRoute] string orderId
@@ -21,6 +23,7 @@ public class OrderItemController(OrderItemService orderItemService) : Controller
 		return Unauthorized(response);
 	}
 
+	[Authorize]
 	[HttpPost("create/{orderId}")]
 	public async Task<IActionResult> CreateOrderItem(
 		[FromRoute] string orderId,
@@ -33,6 +36,7 @@ public class OrderItemController(OrderItemService orderItemService) : Controller
 		return Unauthorized(response);
 	}
 
+	[Authorize]
 	[HttpPut("update/{orderItemId}")]
 	public async Task<IActionResult> UpdateOrder(
 		[FromRoute] string orderItemId,
@@ -45,6 +49,7 @@ public class OrderItemController(OrderItemService orderItemService) : Controller
 		return Unauthorized(response);
 	}
 
+	[Authorize]
 	[HttpDelete("{orderItemId}")]
 	public async Task<IActionResult> DeleteOrder([FromRoute] string orderItemId)
 	{

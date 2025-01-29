@@ -20,7 +20,7 @@ public class MenuService(MenuRepository menuRepository)
 				ItemId = id,
 				OutletId = request.OutletId,
 				Name = request.Name,
-				Price = request.Price,
+				Price = Math.Round(request.Price, 2),
 				CreatedAt = currentTimestamp,
 				UpdatedAt = currentTimestamp
 			};
@@ -48,7 +48,7 @@ public class MenuService(MenuRepository menuRepository)
 			var menu = await _menuRepository.GetById(id);
 			if (menu == null) return new BaseResponse<bool> { Success = false, Message = "Menu not found" };
 			menu.Name = request.Name ?? menu.Name;
-			menu.Price = request.Price ?? menu.Price;
+			menu.Price = Math.Round(request.Price ?? menu.Price, 2);
 			await _menuRepository.Update(menu);
 			return new BaseResponse<bool>(true) { Success = true };
 		}

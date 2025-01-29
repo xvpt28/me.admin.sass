@@ -22,17 +22,17 @@ public class InvoiceService(
 	readonly OrderRepository _orderRepository = orderRepository;
 	readonly OutletRepository _outletRepository = outletRepository;
 
-	public async Task<BaseResponse<List<Invoice>>> GetAllInvoiceRecord(string outletId)
+	public async Task<BaseResponse<List<GetAllInvoiceResponseDto>>> GetAllInvoiceRecord(string outletId, GetInvoiceFilterDto filter)
 	{
 		try
 		{
-			var resp = await _invoiceRepository.GetAll(outletId);
-			return new BaseResponse<List<Invoice>>(resp) { Success = true };
+			var resp = await _invoiceRepository.GetAllWithFilter(outletId, filter);
+			return new BaseResponse<List<GetAllInvoiceResponseDto>>(resp) { Success = true };
 		}
 		catch (Exception e)
 		{
 			Log.Logger.Error(e.Message, "Error getting all invoice");
-			return new BaseResponse<List<Invoice>> { Success = false, Message = e.Message };
+			return new BaseResponse<List<GetAllInvoiceResponseDto>> { Success = false, Message = e.Message };
 		}
 	}
 
@@ -46,6 +46,7 @@ public class InvoiceService(
 			var resp = await _invoiceRepository.GetByOrderId(orderId);
 			if (resp != null)
 			{
+				if (resp.FilePath != null && File.Exists(resp.FilePath)) File.Delete(resp.FilePath);
 				await _invoiceRepository.Delete(resp.InvoiceId);
 			}
 
@@ -79,7 +80,7 @@ public class InvoiceService(
 			var invoiceRecord = await _invoiceRepository.GetByOrderId(orderId);
 			if (invoiceRecord == null) throw new Exception("Invoice not found");
 
-			var filePath = GenerateInvoiceFile(order, orderItem, outlet, entity, invoiceRecord.InvoiceId, body.HideDiscount);
+			var filePath = GenerateInvoiceFile(order, orderItem, outlet, entity, invoiceRecord.InvoiceId, body);
 
 			invoiceRecord.FilePath = filePath;
 			await _invoiceRepository.Update(invoiceRecord);
@@ -128,11 +129,18 @@ public class InvoiceService(
 	//----------------------------------------------------------------------------------------------------------------------
 	// @ Private Methods
 	//----------------------------------------------------------------------------------------------------------------------
-	string GenerateInvoiceFile(Order order, List<OrderItemWithMenu> orderItems, Outlet outlet, Invoice data, int invoiceId, bool hideDiscount)
+	string GenerateInvoiceFile(
+		Order order,
+		List<OrderItemWithMenu> orderItems,
+		Outlet outlet,
+		Invoice data,
+		int invoiceId,
+		CreateInvoiceDto payload)
 	{
 		if (!Directory.Exists("Invoice")) Directory.CreateDirectory("Invoice");
 		var formattedInvoiceId = invoiceId.ToString("D4");
-		var filePath = Path.Combine("Invoice", $"ME-INV-{formattedInvoiceId}.pdf");
+		var fileName = data.Type == "invoice" ? $"ME-INV-{formattedInvoiceId}.pdf" : $"ME-QUO-{formattedInvoiceId}.pdf";
+		var filePath = Path.Combine("Invoice", fileName);
 		if (File.Exists(filePath)) File.Delete(filePath);
 
 		Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -155,11 +163,12 @@ public class InvoiceService(
 		var textFont = new Font(baseFontNormal, 10, Font.BOLD, BaseColor.DARK_GRAY);
 		var textFontBold = new Font(baseFontBold, 10, Font.BOLD, BaseColor.DARK_GRAY);
 		var textFooter = new Font(baseFontNormal, 8, Font.BOLD, BaseColor.DARK_GRAY);
+		var textInfo = new CultureInfo("en-US", false).TextInfo;
 
 		var me = new Paragraph("ME CAFE & GAMES LP", meFont);
 		document.Add(me);
 
-		var title = new Paragraph("Invoice", titleFont);
+		var title = new Paragraph(textInfo.ToTitleCase(data.Type), titleFont);
 		title.SpacingAfter = 10f;
 		document.Add(title);
 
@@ -168,7 +177,7 @@ public class InvoiceService(
 		var issueDateFormatted = issueDate.ToString("dd MMM yyyy", CultureInfo.InvariantCulture);
 		var meInfo = new List<string>
 		{
-			$"Invoice ID: {formattedInvoiceId}",
+			$"{textInfo.ToTitleCase(textInfo.ToTitleCase(data.Type))} ID: {formattedInvoiceId}",
 			$"Issue Date: {issueDateFormatted}",
 			"UEN: T22LP0078A"
 		};
@@ -218,15 +227,15 @@ public class InvoiceService(
 			index++;
 		}
 
-		var textInfo = new CultureInfo("en-US", false).TextInfo;
 		orderItems.ForEach(item =>
 		{
 			var total = item.Quantity * item.UnitPrice;
 			var unitPrice = item.UnitPrice;
-			if (hideDiscount)
+			if (payload.HideDiscount)
 			{
-				total *= (100 - (order.Discount ?? 0)) / 100;
-				unitPrice *= (100 - (order.Discount ?? 0)) / 100;
+				var discount = payload.Discount ?? order.Discount ?? 0;
+				total *= (100 - discount) / 100;
+				unitPrice *= (100 - discount) / 100;
 			}
 			var totalFormatted = total.ToString("N2", CultureInfo.InvariantCulture);
 			var tableContent = new List<string>
@@ -262,9 +271,18 @@ public class InvoiceService(
 			}
 		});
 
-		if (!hideDiscount)
+		if (!payload.HideDiscount)
 		{
-			var subTotal = (order.Amount ?? 0) * ((100 + (order.Discount ?? 0)) / 100);
+			double subTotal;
+			if (payload.Amount != null && payload.Discount != null)
+			{
+				subTotal = (payload.Amount ?? 0) * ((100 + (payload.Discount ?? 0)) / 100);
+			}
+			else
+			{
+				subTotal = (order.Amount ?? 0) * ((100 + (order.Discount ?? 0)) / 100);
+			}
+
 			var tableSubTotal = new List<string> { "", "", "Sub Total", "$" + subTotal.ToString("N2", CultureInfo.InvariantCulture) };
 			index = 0;
 			foreach (var x in tableSubTotal)
@@ -287,9 +305,18 @@ public class InvoiceService(
 			}
 		}
 
-		if (order.Discount != null && order.Discount > 0 && !hideDiscount)
+		if ((payload.Discount is > 0 || order.Discount is > 0) && !payload.HideDiscount)
 		{
-			var discount = (order.Amount ?? 0) * ((order.Discount ?? 0) / 100);
+			double discount;
+			if (payload.Discount != null && payload.Amount != null)
+			{
+				discount = (payload.Amount ?? 0) * ((payload.Discount ?? 0) / 100);
+			}
+			else
+			{
+				discount = (order.Amount ?? 0) * ((order.Discount ?? 0) / 100);
+			}
+
 			var tableDiscount = new List<string> { "", "", "Discount", "$" + discount.ToString("N2", CultureInfo.InvariantCulture) };
 			index = 0;
 			foreach (var x in tableDiscount)
@@ -312,7 +339,7 @@ public class InvoiceService(
 			}
 		}
 
-		var grandTotal = order.Amount ?? 0;
+		var grandTotal = payload.Amount ?? order.Amount ?? 0;
 		var tableGrandTotal = new List<string> { "", "", "Grand Total", "$" + grandTotal.ToString("N2", CultureInfo.InvariantCulture) };
 		index = 0;
 		foreach (var x in tableGrandTotal)
@@ -343,28 +370,32 @@ public class InvoiceService(
 		infoTable.SetWidths(new[] { 50f, 50f });
 
 		// 第一列内容
+
 		var leftCell = new PdfPCell();
-		var paymentText = new Paragraph("Payment Information", textFontBold);
-		leftCell.AddElement(paymentText);
-		var paymentInfo = new List<string>
+		if (data.Type != "quotation")
 		{
-			"ME Cafe Games LP",
-			"United Overseas Bank",
-			"Acct. No. 4223198788"
-		};
+			var paymentText = new Paragraph("Payment Information", textFontBold);
+			leftCell.AddElement(paymentText);
+			var paymentInfo = new List<string>
+			{
+				"ME Cafe Games LP",
+				"United Overseas Bank",
+				"Acct. No. 4223198788"
+			};
 
-		if (order.UpdatedAt > 0)
-		{
-			var paymentDate = DateTimeOffset.FromUnixTimeMilliseconds(order.UpdatedAt).ToLocalTime().DateTime;
-			var paymentDateFormatted = paymentDate.ToString("dd MMM yyyy", CultureInfo.InvariantCulture);
-			paymentInfo.Add("Date: " + paymentDateFormatted);
-		}
+			if (order.UpdatedAt > 0)
+			{
+				var paymentDate = DateTimeOffset.FromUnixTimeMilliseconds(order.UpdatedAt).ToLocalTime().DateTime;
+				var paymentDateFormatted = paymentDate.ToString("dd MMM yyyy", CultureInfo.InvariantCulture);
+				paymentInfo.Add("Date: " + paymentDateFormatted);
+			}
 
-		foreach (var info in paymentInfo)
-		{
-			var text = new Paragraph(info, textFont);
-			text.SpacingBefore = 5f;
-			leftCell.AddElement(text);
+			foreach (var info in paymentInfo)
+			{
+				var text = new Paragraph(info, textFont);
+				text.SpacingBefore = 5f;
+				leftCell.AddElement(text);
+			}
 		}
 		leftCell.HorizontalAlignment = Element.ALIGN_LEFT; // 左对齐
 		leftCell.Padding = 8f;
@@ -373,10 +404,13 @@ public class InvoiceService(
 
 		// 第二列内容
 		var rightCell = new PdfPCell();
-		var billedText = new Paragraph("Billed to", textFontBold);
-		rightCell.AddElement(billedText);
-		var billedInfo = new List<string>();
+		if (!string.IsNullOrEmpty(data.BilledTo) || !string.IsNullOrEmpty(data.BilledCompanyAddress) || !string.IsNullOrEmpty(data.BilledCompanyUEN))
+		{
+			var billedText = new Paragraph("Billed to", textFontBold);
+			rightCell.AddElement(billedText);
+		}
 
+		var billedInfo = new List<string>();
 		if (data.BilledTo != null)
 		{
 			billedInfo.Add(textInfo.ToTitleCase(data.BilledTo));
@@ -407,18 +441,25 @@ public class InvoiceService(
 		var canvas = writer.DirectContent;
 		canvas.BeginText();
 		canvas.SetFontAndSize(baseFontBold, 10);
-		canvas.SetTextMatrix(365, 190); // X=36, Y=36 即底部边缘的 36 点处
+		canvas.SetTextMatrix(365, 210); // X=36, Y=36 即底部边缘的 36 点处
 		canvas.ShowText("Signature & Company stamp".ToUpper());
 		canvas.EndText();
 
 		canvas.SetLineWidth(1f);
 		float x1 = 350; // 起点 X 坐标
-		float y1 = 140; // 起点 Y 坐标
+		float y1 = 120; // 起点 Y 坐标
 		float x2 = 560; // 终点 X 坐标
-		float y2 = 140; // 终点 Y 坐标
+		float y2 = 120; // 终点 Y 坐标
 		canvas.MoveTo(x1, y1); // 移动到起点
 		canvas.LineTo(x2, y2); // 画到终点
 		canvas.Stroke(); // 结束并绘制线条
+
+		var stampPath = "static/images/stamp.png";
+		if (!File.Exists(stampPath)) throw new Exception("Stamp file not found");
+		var imageStamp = Image.GetInstance(stampPath);
+		imageStamp.ScaleToFit(80f, 80f);
+		imageStamp.SetAbsolutePosition(415f, 125f);
+		document.Add(imageStamp);
 
 		writer.PageEvent = new Footer($"{outlet.OutletAddress}, {outlet.OutletPostcode}", outlet.OutletPhoneNumber, textFooter);
 

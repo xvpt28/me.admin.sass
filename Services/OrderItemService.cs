@@ -33,7 +33,7 @@ public class OrderItemService(OrderItemRepository orderItemRepository)
 				OrderItemId = Ulid.NewUlid().ToString(),
 				OrderId = orderId,
 				MenuId = body.MenuId,
-				UnitPrice = body.UnitPrice,
+				UnitPrice = Math.Round(body.UnitPrice, 2),
 				Quantity = 1,
 				CreatedAt = currentTimestamp,
 				UpdatedAt = currentTimestamp

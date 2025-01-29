@@ -1,5 +1,6 @@
 using me.admin.api.DTOs;
 using me.admin.api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace me.admin.api.Controllers;
@@ -9,7 +10,7 @@ namespace me.admin.api.Controllers;
 public class OrderController(OrderService orderService) : ControllerBase
 {
 	readonly OrderService _orderService = orderService;
-
+	[Authorize]
 	[HttpGet("all/ongoing/{outletId}")]
 	public async Task<IActionResult> GetAllOngoingOrder([FromRoute] string outletId)
 	{
@@ -19,6 +20,7 @@ public class OrderController(OrderService orderService) : ControllerBase
 		return Unauthorized(response);
 	}
 
+	[Authorize]
 	[HttpGet("all/filter/{outletId}")]
 	public async Task<IActionResult> GetAllOrderWithFilter([FromRoute] string outletId, [FromQuery] GetOrderFilterDto query)
 	{
@@ -28,6 +30,7 @@ public class OrderController(OrderService orderService) : ControllerBase
 		return Unauthorized(response);
 	}
 
+	[Authorize]
 	[HttpGet("{orderId}")]
 	public async Task<IActionResult> GetOrderById([FromRoute] string orderId)
 	{
@@ -37,6 +40,7 @@ public class OrderController(OrderService orderService) : ControllerBase
 		return Unauthorized(response);
 	}
 
+	[Authorize]
 	[HttpPost("create/{outletId}")]
 	public async Task<IActionResult> CreateOrder(
 		[FromRoute] string outletId,
@@ -49,6 +53,7 @@ public class OrderController(OrderService orderService) : ControllerBase
 		return Unauthorized(response);
 	}
 
+	[Authorize]
 	[HttpPut("update/{orderId}")]
 	public async Task<IActionResult> UpdateOrder(
 		[FromRoute] string orderId,
@@ -61,6 +66,7 @@ public class OrderController(OrderService orderService) : ControllerBase
 		return Unauthorized(response);
 	}
 
+	[Authorize]
 	[HttpDelete("{orderId}")]
 	public async Task<IActionResult> DeleteOrder([FromRoute] string orderId)
 	{

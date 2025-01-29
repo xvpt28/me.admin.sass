@@ -4,6 +4,8 @@ public class CreateOrderDto
 {
 	public required string OrderStatus { get; set; }
 	public required string Remarks { get; set; }
+
+	public long? CreatedAt { get; set; }
 }
 
 public class UpdateOrderDto

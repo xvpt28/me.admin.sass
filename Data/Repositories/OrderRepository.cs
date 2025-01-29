@@ -55,16 +55,11 @@ public class OrderRepository(AppDbContext appDbContext)
 		var skip = limit * (page - 1);
 		await using var db = _appDbContext.GetDatabase();
 		var tblOrder = db.GetTable<Order>()
-			.Where(x => x.DeletedAt == null && x.OutletId == outletId).Skip(skip).Take(limit);
+			.Where(x => x.DeletedAt == null && x.OutletId == outletId);
 
 		if (filter.OrderStatus != null)
 		{
 			tblOrder = tblOrder.Where(x => x.OrderStatus == filter.OrderStatus);
-		}
-
-		if (filter.StartTimestamp != null && filter.EndTimestamp != null)
-		{
-			tblOrder = tblOrder.Where(x => x.CreatedAt >= filter.StartTimestamp && x.CreatedAt <= filter.EndTimestamp);
 		}
 
 		var tblUser = db.GetTable<User>().Where(x => x.DeletedAt == null);
@@ -88,7 +83,28 @@ public class OrderRepository(AppDbContext appDbContext)
 				DeletedAt = orderGroup.Key.o.DeletedAt,
 				CreatedBy = orderGroup.Key.FullName
 			};
+
+		if (filter.StartTimestamp != null && filter.EndTimestamp != null)
+		{
+			query = query.Where(x => x.CreatedAt >= filter.StartTimestamp && x.CreatedAt <= filter.EndTimestamp);
+		}
+
+		if (filter.OrderStatus != null)
+		{
+			query = query.Where(x => x.OrderStatus == filter.OrderStatus);
+		}
+
+		query = query.Skip(skip).Take(limit);
+
 		return await query.ToListAsync();
+	}
+
+	public async Task<List<Order>> GetAllOrderPayByCashByDate(string outletId, long startTimestamp, long endTimestamp)
+	{
+		await using var db = _appDbContext.GetDatabase();
+		return await db.GetTable<Order>()
+			.Where(x => x.DeletedAt == null && x.OutletId == outletId && x.PaymentMethod == "cash" && x.CreatedAt >= startTimestamp && x.CreatedAt <= endTimestamp)
+			.ToListAsync();
 	}
 
 	public async Task<Order?> GetById(string id)

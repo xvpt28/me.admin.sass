@@ -1,5 +1,6 @@
 using me.admin.api.DTOs;
 using me.admin.api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace me.admin.api.Controllers;
@@ -10,15 +11,17 @@ public class InvoiceController(InvoiceService invoiceService) : ControllerBase
 {
 	readonly InvoiceService _invoiceService = invoiceService;
 
+	[Authorize]
 	[HttpGet("all/{outletId}")]
-	public async Task<IActionResult> GetAllInvoice([FromRoute] string outletId)
+	public async Task<IActionResult> GetAllInvoice([FromRoute] string outletId, [FromQuery] GetInvoiceFilterDto filter)
 	{
-		var response = await _invoiceService.GetAllInvoiceRecord(outletId);
+		var response = await _invoiceService.GetAllInvoiceRecord(outletId, filter);
 		if (response.Success)
 			return Ok(response);
 		return NotFound(response);
 	}
 
+	[Authorize]
 	[HttpGet("download/{invoiceId}")]
 	public async Task<IActionResult> GenerateInvoice([FromRoute] int invoiceId)
 	{
@@ -32,7 +35,7 @@ public class InvoiceController(InvoiceService invoiceService) : ControllerBase
 				if (!System.IO.File.Exists(filePath)) throw new Exception("File not found");
 				var downloadName = response.Data.FilePath.Split('/').Last();
 				var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-				var contentType = "application/octet-stream"; // 或自定义 MIME 类型
+				var contentType = "application/pdf"; // 或自定义 MIME 类型
 				return File(fileStream, contentType, downloadName);
 			}
 		}
@@ -44,6 +47,7 @@ public class InvoiceController(InvoiceService invoiceService) : ControllerBase
 		return NotFound(response);
 	}
 
+	[Authorize]
 	[HttpPost("generate/{orderId}")]
 	public async Task<IActionResult> GenerateInvoice([FromRoute] string orderId, [FromBody] CreateInvoiceDto body)
 	{
@@ -57,7 +61,7 @@ public class InvoiceController(InvoiceService invoiceService) : ControllerBase
 				if (!System.IO.File.Exists(filePath)) throw new Exception("File not found");
 				var downloadName = response.Data.Split('/').Last();
 				var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-				var contentType = "application/octet-stream"; // 或自定义 MIME 类型
+				var contentType = "application/pdf"; // 或自定义 MIME 类型
 				return File(fileStream, contentType, downloadName);
 			}
 		}
@@ -69,6 +73,7 @@ public class InvoiceController(InvoiceService invoiceService) : ControllerBase
 		return NotFound(response);
 	}
 
+	[Authorize]
 	[HttpDelete("{invoiceId}")]
 	public async Task<IActionResult> DeleteInvoice([FromRoute] int invoiceId)
 	{

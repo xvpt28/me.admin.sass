@@ -71,7 +71,7 @@ public class OrderService(OrderRepository orderRepository, AuthService authServi
 				OrderStatus = body.OrderStatus,
 				Remarks = body.Remarks,
 				CreatedBy = userId,
-				CreatedAt = currentTime,
+				CreatedAt = body.CreatedAt ?? currentTime,
 				UpdatedAt = currentTime
 			};
 			await _orderRepository.Insert(entity);
@@ -97,6 +97,10 @@ public class OrderService(OrderRepository orderRepository, AuthService authServi
 			order.Remarks = body.Remarks ?? order.Remarks;
 			order.PaymentMethod = body.PaymentMethod ?? order.PaymentMethod;
 			order.UpdatedAt = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+			if (order.Amount != null)
+			{
+				order.Amount = Math.Round(order.Amount.Value, 2);
+			}
 			await _orderRepository.Update(order);
 			return new BaseResponse<bool>(true) { Success = true };
 		}

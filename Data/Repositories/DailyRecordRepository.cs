@@ -39,6 +39,43 @@ public class DailyRecordRepository(AppDbContext appDbContext)
 		return await query.ToListAsync();
 	}
 
+	public async Task<List<GetDailyRecordWithFilterDataDto>> GetAllDailyWithFilter(string outletId, GetDailyRecordFilterDto filter)
+	{
+		await using var db = _appDbContext.GetDatabase();
+		var tblDr = db.GetTable<DailyRecord>().Where(x => x.DeletedAt == null && x.OutletId == outletId);
+		var tblUser = db.GetTable<User>();
+		var tblOutlet = db.GetTable<Outlet>();
+		var query = from dr in tblDr
+			join user in tblUser on dr.CreatedBy equals user.UserId
+			join outlet in tblOutlet on dr.OutletId equals outlet.OutletId
+			where dr.RecordDate >= filter.StartDate && dr.RecordDate <= filter.EndDate
+			select new GetDailyRecordWithFilterDataDto
+			{
+				RecordId = dr.RecordId,
+				OutletId = dr.OutletId,
+				RecordDate = dr.RecordDate,
+				Revenue = dr.Revenue,
+				Cash = dr.Cash,
+				CreatedBy = dr.CreatedBy,
+				CreatedAt = dr.CreatedAt,
+				UpdatedAt = dr.UpdatedAt,
+				UserInfo = new GetUserDto
+				{
+					UserId = user.UserId,
+					Email = user.Email,
+					FullName = user.FullName,
+					Role = user.Role
+				}
+			};
+		return await query.ToListAsync();
+	}
+
+	public async Task<DailyRecord?> GetPreviousDailyRecord(string outletId, long date)
+	{
+		await using var db = _appDbContext.GetDatabase();
+		return await db.GetTable<DailyRecord>().Where(x => x.DeletedAt == null && x.OutletId == outletId && x.RecordDate < date).OrderByDescending(x => x.RecordDate).FirstOrDefaultAsync();
+	}
+
 	public async Task Delete(string id)
 	{
 		await using var db = _appDbContext.GetDatabase();

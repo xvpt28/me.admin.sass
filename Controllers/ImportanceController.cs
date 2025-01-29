@@ -1,5 +1,6 @@
 using me.admin.api.DTOs;
 using me.admin.api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace me.admin.api.Controllers;
@@ -10,6 +11,7 @@ public class ImportanceController(ImportanceService importanceService) : Control
 {
 	readonly ImportanceService _importanceService = importanceService;
 
+	[Authorize]
 	[HttpPost("create/{outletId}")]
 	public async Task<IActionResult> CreateImportance([FromRoute] string outletId, [FromBody] CreateImportanceDto body)
 	{
@@ -19,6 +21,7 @@ public class ImportanceController(ImportanceService importanceService) : Control
 		return NotFound(response);
 	}
 
+	[Authorize]
 	[HttpGet("all/{outletId}")]
 	public async Task<IActionResult> GetAllImportance([FromRoute] string outletId)
 	{
@@ -28,6 +31,7 @@ public class ImportanceController(ImportanceService importanceService) : Control
 		return NotFound(response);
 	}
 
+	[Authorize]
 	[HttpPut("update/{noteId}")]
 	public async Task<IActionResult> UpdateImportanceById(
 		[FromRoute] string noteId,
@@ -40,6 +44,7 @@ public class ImportanceController(ImportanceService importanceService) : Control
 		return NotFound(response);
 	}
 
+	[Authorize]
 	[HttpDelete("{noteId}")]
 	public async Task<IActionResult> DeleteMenuById([FromRoute] string noteId)
 	{
