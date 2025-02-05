@@ -26,6 +26,7 @@ builder.Services.AddSingleton<OrderRepository, OrderRepository>();
 builder.Services.AddSingleton<OrderItemRepository, OrderItemRepository>();
 builder.Services.AddSingleton<ImportanceRepository, ImportanceRepository>();
 builder.Services.AddSingleton<InvoiceRepository, InvoiceRepository>();
+builder.Services.AddSingleton<ExpenseRepository, ExpenseRepository>();
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 /*                                                      Services                                                      */
@@ -38,6 +39,7 @@ builder.Services.AddSingleton<OrderService, OrderService>();
 builder.Services.AddSingleton<OrderItemService, OrderItemService>();
 builder.Services.AddSingleton<ImportanceService, ImportanceService>();
 builder.Services.AddSingleton<InvoiceService, InvoiceService>();
+builder.Services.AddSingleton<ExpenseService, ExpenseService>();
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 /*                                                       Options                                                      */
@@ -139,6 +141,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("Database"));
+builder.Services.Configure<FileSetting>(builder.Configuration.GetSection("File"));
 
 var app = builder.Build();
 

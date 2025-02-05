@@ -39,11 +39,24 @@ public class AuthService(
 		throw new Exception("User not authenticated");
 	}
 
+	public async Task<string> GetRole()
+	{
+		var userId = GetUserId();
+		if (userId != null)
+		{
+			var user = await _userRepository.GetById(userId);
+			if (user == null) throw new Exception("User not found");
+			return user.Role;
+		}
+
+		throw new Exception("User not authenticated");
+	}
+
 	public async Task<BaseResponse<LoginTokenDto>> Login(LoginRequestDto loginRequest)
 	{
 		try
 		{
-			var user = await _userRepository.GetUserByEmail(loginRequest.Email);
+			var user = await _userRepository.GetUserByEmail(loginRequest.Email.ToLower());
 
 			if (user == null)
 				throw new Exception("Invalid username or password");

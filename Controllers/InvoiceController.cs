@@ -1,14 +1,17 @@
 using me.admin.api.DTOs;
 using me.admin.api.Services;
+using me.admin.api.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace me.admin.api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class InvoiceController(InvoiceService invoiceService) : ControllerBase
+public class InvoiceController(InvoiceService invoiceService, IOptions<FileSetting> fileSetting) : ControllerBase
 {
+	readonly FileSetting _fileSetting = fileSetting.Value;
 	readonly InvoiceService _invoiceService = invoiceService;
 
 	[Authorize]
@@ -30,7 +33,7 @@ public class InvoiceController(InvoiceService invoiceService) : ControllerBase
 		{
 			if (response.Success && response.Data != null && response.Data.FilePath != null)
 			{
-				var rootPath = Directory.GetCurrentDirectory();
+				var rootPath = _fileSetting.RootFolder;
 				var filePath = Path.Combine(rootPath, response.Data.FilePath);
 				if (!System.IO.File.Exists(filePath)) throw new Exception("File not found");
 				var downloadName = response.Data.FilePath.Split('/').Last();

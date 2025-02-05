@@ -9,6 +9,12 @@ public class CreateDailyRecordRequestDto
 	public required double Cash { get; set; }
 }
 
+public class UpdateAdminDailyRecordRequestDto
+{
+	public double? Revenue { get; set; }
+	public double? Cash { get; set; }
+}
+
 public class UpdateDailyRecordRequestDto
 {
 	public long? RecordDate { get; set; }

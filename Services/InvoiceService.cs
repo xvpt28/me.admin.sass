@@ -5,11 +5,14 @@ using iTextSharp.text.pdf;
 using me.admin.api.Data.Repositories;
 using me.admin.api.DTOs;
 using me.admin.api.Models;
+using me.admin.api.Utils;
+using Microsoft.Extensions.Options;
 using Serilog;
 
 namespace me.admin.api.Services;
 
 public class InvoiceService(
+	IOptions<FileSetting> fileSetting,
 	InvoiceRepository invoiceRepository,
 	AuthService authService,
 	OrderRepository orderRepository,
@@ -17,6 +20,7 @@ public class InvoiceService(
 	OutletRepository outletRepository)
 {
 	readonly AuthService _authService = authService;
+	readonly FileSetting _fileSetting = fileSetting.Value;
 	readonly InvoiceRepository _invoiceRepository = invoiceRepository;
 	readonly OrderItemRepository _orderItemRepository = orderItemRepository;
 	readonly OrderRepository _orderRepository = orderRepository;
@@ -137,10 +141,11 @@ public class InvoiceService(
 		int invoiceId,
 		CreateInvoiceDto payload)
 	{
-		if (!Directory.Exists("Invoice")) Directory.CreateDirectory("Invoice");
+		var rootFolder = Path.Combine(_fileSetting.RootFolder, _fileSetting.InvoiceRootFolder);
+		if (!Directory.Exists(rootFolder)) Directory.CreateDirectory(rootFolder);
 		var formattedInvoiceId = invoiceId.ToString("D4");
 		var fileName = data.Type == "invoice" ? $"ME-INV-{formattedInvoiceId}.pdf" : $"ME-QUO-{formattedInvoiceId}.pdf";
-		var filePath = Path.Combine("Invoice", fileName);
+		var filePath = Path.Combine(rootFolder, fileName);
 		if (File.Exists(filePath)) File.Delete(filePath);
 
 		Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);

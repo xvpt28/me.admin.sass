@@ -11,7 +11,7 @@ public class DailyRecordController(DailyRecordService dailyRecordService) : Cont
 {
 	readonly DailyRecordService _dailyRecordService = dailyRecordService;
 
-	[Authorize(Roles = "SuperAdmin")]
+	[Authorize(Roles = "SuperAdmin, Manager")]
 	[HttpPost("create/admin/{outletId}")]
 	public async Task<IActionResult> CreateAdminDailyRecord(
 		[FromRoute] string outletId,
@@ -19,6 +19,19 @@ public class DailyRecordController(DailyRecordService dailyRecordService) : Cont
 	)
 	{
 		var response = await _dailyRecordService.CreateDailyRecord(outletId, body);
+		if (response.Success)
+			return Ok(response);
+		return Unauthorized(response);
+	}
+
+	[Authorize(Roles = "SuperAdmin, Manager")]
+	[HttpPut("update/admin/{recordId}")]
+	public async Task<IActionResult> UpdateAdminDailyRecord(
+		[FromRoute] string recordId,
+		[FromBody] UpdateAdminDailyRecordRequestDto body
+	)
+	{
+		var response = await _dailyRecordService.UpdateAdminDailyRecord(recordId, body);
 		if (response.Success)
 			return Ok(response);
 		return Unauthorized(response);
@@ -50,11 +63,17 @@ public class DailyRecordController(DailyRecordService dailyRecordService) : Cont
 		return Unauthorized(response);
 	}
 
-	[Authorize(Roles = "SuperAdmin")]
+	[Authorize(Roles = "SuperAdmin, Manager")]
 	[HttpGet("all/daily/{outletId}")]
-	public async Task<IActionResult> GetAllDailyRecordsByOutlet([FromRoute] string outletId, [FromQuery] GetDailyRecordFilterDto filter)
+	public async Task<IActionResult> GetAllDailyRecordsByOutlet(
+		[FromRoute] string outletId,
+		[FromQuery] GetDailyRecordFilterDto filter
+	)
 	{
-		var response = await _dailyRecordService.GetAllDailyRecordsByOutletWithFilter(outletId, filter);
+		var response = await _dailyRecordService.GetAllDailyRecordsByOutletWithFilter(
+			outletId,
+			filter
+		);
 
 		if (response.Success)
 			return Ok(response);
@@ -63,9 +82,15 @@ public class DailyRecordController(DailyRecordService dailyRecordService) : Cont
 
 	[Authorize(Roles = "SuperAdmin")]
 	[HttpGet("all/monthly/{outletId}")]
-	public async Task<IActionResult> GetAllMonthlyRecordsByOutlet([FromRoute] string outletId, [FromQuery] GetDailyRecordFilterDto filter)
+	public async Task<IActionResult> GetAllMonthlyRecordsByOutlet(
+		[FromRoute] string outletId,
+		[FromQuery] GetDailyRecordFilterDto filter
+	)
 	{
-		var response = await _dailyRecordService.GetAllMonthlyRecordsByOutletWithFilter(outletId, filter);
+		var response = await _dailyRecordService.GetAllMonthlyRecordsByOutletWithFilter(
+			outletId,
+			filter
+		);
 
 		if (response.Success)
 			return Ok(response);
@@ -85,7 +110,10 @@ public class DailyRecordController(DailyRecordService dailyRecordService) : Cont
 
 	[Authorize]
 	[HttpGet("{outletId}/{date}")]
-	public async Task<IActionResult> GetAllRecordsByOutletAndDate([FromRoute] string outletId, [FromRoute] long date)
+	public async Task<IActionResult> GetAllRecordsByOutletAndDate(
+		[FromRoute] string outletId,
+		[FromRoute] long date
+	)
 	{
 		var response = await _dailyRecordService.GetRecordByOutletAndDate(outletId, date);
 
@@ -96,9 +124,9 @@ public class DailyRecordController(DailyRecordService dailyRecordService) : Cont
 
 	[Authorize(Roles = "SuperAdmin")]
 	[HttpDelete("{dailyRecordId}")]
-	public async Task<IActionResult> DeleteRecordById([FromRoute] string id)
+	public async Task<IActionResult> DeleteRecordById([FromRoute] string dailyRecordId)
 	{
-		var response = await _dailyRecordService.DeleteDailyRecord(id);
+		var response = await _dailyRecordService.DeleteDailyRecord(dailyRecordId);
 
 		if (response.Success)
 			return Ok(response);
