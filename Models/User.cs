@@ -21,6 +21,9 @@ public class User
     public required string FullName { get; set; }
 
     [Column]
+    public string? Phone { get; set; }
+
+    [Column]
     [NotNull]
     public long? CreatedAt { get; set; }
 

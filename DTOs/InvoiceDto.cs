@@ -5,9 +5,13 @@ namespace me.admin.api.DTOs;
 public class CreateInvoiceDto
 {
     public required string Type { get; set; }
+    public string? PoNumber { get; set; }
     public string? BilledTo { get; set; }
     public string? BilledCompanyAddress { get; set; }
     public string? BilledCompanyUEN { get; set; }
+    public string? BilledToEmail { get; set; }
+    public bool PocRequired { get; set; } = false;
+
     public bool HideDiscount { get; set; } = false;
 
     public double? Discount { get; set; }

@@ -6,6 +6,7 @@ public class CreateUserDto
     public required string Password { get; set; }
     public required string FullName { get; set; }
     public required string Role { get; set; }
+    public string? Phone { get; set; }
 }
 
 public class GetUserDto
@@ -14,6 +15,7 @@ public class GetUserDto
     public required string Email { get; set; }
     public required string FullName { get; set; }
     public required string Role { get; set; }
+    public string? Phone { get; set; }
 }
 
 public class UpdateUserDto
@@ -22,6 +24,7 @@ public class UpdateUserDto
     public string? Email { get; set; }
     public string? Role { get; set; }
     public bool? IsActive { get; set; }
+    public string? Phone { get; set; }
 }
 
 public class UpdateUserPasswordDto

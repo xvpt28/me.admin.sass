@@ -81,10 +81,13 @@ public class InvoiceService(
             {
                 OrderId = order.OrderId,
                 FilePath = null,
+                PoNumber = body.PoNumber,
                 Type = body.Type,
                 BilledTo = body.BilledTo,
                 BilledCompanyAddress = body.BilledCompanyAddress,
                 BilledCompanyUEN = body.BilledCompanyUEN,
+                BilledToEmail = body.BilledToEmail,
+                PocRequired = body.PocRequired,
                 IssuedDate = currentTimestamp,
                 CreatedBy = userId,
                 CreatedAt = currentTimestamp,
@@ -230,12 +233,19 @@ public class InvoiceService(
             .ToLocalTime()
             .DateTime;
         var issueDateFormatted = issueDate.ToString("dd MMM yyyy", CultureInfo.InvariantCulture);
-        var meInfo = new List<string>
+        var meInfo = new List<string>();
+
+        if (!String.IsNullOrEmpty(data.PoNumber))
         {
-            $"{textInfo.ToTitleCase(textInfo.ToTitleCase(data.Type))} ID: {formattedInvoiceId}",
-            $"Issue Date: {issueDateFormatted}",
-            "UEN: T22LP0078A",
-        };
+            meInfo.Add($"PO Number: {data.PoNumber.ToUpper()}");
+        }
+
+        meInfo.Add(
+            $"{textInfo.ToTitleCase(textInfo.ToTitleCase(data.Type))} ID: {formattedInvoiceId}"
+        );
+        meInfo.Add($"Issue Date: {issueDateFormatted}");
+        meInfo.Add("UEN: T22LP0078A");
+
         meInfo.ForEach(x =>
         {
             var text = new Paragraph(x, textFont);
@@ -456,6 +466,11 @@ public class InvoiceService(
                 "Acct. No. 4223198788",
             };
 
+            if (data.PocRequired is true)
+            {
+                paymentInfo.Add("Point of Contact: Zhu Di (Hp: 81276870)");
+            }
+
             if (order.UpdatedAt > 0)
             {
                 var paymentDate = DateTimeOffset
@@ -497,6 +512,11 @@ public class InvoiceService(
         if (data.BilledTo != null)
         {
             billedInfo.Add(textInfo.ToTitleCase(data.BilledTo));
+        }
+
+        if (data.BilledToEmail != null)
+        {
+            billedInfo.Add(data.BilledToEmail.ToLower());
         }
 
         if (data.BilledCompanyAddress != null)

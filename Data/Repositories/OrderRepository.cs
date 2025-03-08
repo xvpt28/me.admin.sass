@@ -14,7 +14,7 @@ public class OrderRepository(AppDbContext appDbContext)
         var response = await GetById(id);
         if (response == null)
             throw new Exception("Order not found");
-        response.DeletedAt = DateTimeOffset.Now.ToUnixTimeSeconds();
+        response.DeletedAt = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         await db.UpdateAsync(response);
     }
 
@@ -73,7 +73,7 @@ public class OrderRepository(AppDbContext appDbContext)
             join u in tblUser on o.CreatedBy equals u.UserId into ou
             from u in ou.DefaultIfEmpty()
             group o by new { o, u.FullName } into orderGroup
-            orderby orderGroup.Key.o.CreatedAt
+            orderby orderGroup.Key.o.UpdatedAt descending
             select new Order
             {
                 OrderId = orderGroup.Key.o.OrderId,

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace me.admin.api.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/admin/[controller]")]
 [ApiController]
 public class InvoiceController(InvoiceService invoiceService, IOptions<FileSetting> fileSetting)
     : ControllerBase

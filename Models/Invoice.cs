@@ -23,7 +23,19 @@ public class Invoice
 
     [Column]
     [Nullable]
+    public string? PoNumber { get; set; }
+
+    [Column]
+    [NotNull]
+    public bool? PocRequired { get; set; } = false;
+
+    [Column]
+    [Nullable]
     public string? BilledTo { get; set; }
+
+    [Column]
+    [Nullable]
+    public string? BilledToEmail { get; set; }
 
     [Column]
     [Nullable]

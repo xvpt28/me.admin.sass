@@ -51,6 +51,7 @@ public class UserService(UserRepository userRepository)
                 PasswordHash = EncryptionUtils.HashPassword(request.Password),
                 FullName = request.FullName,
                 Role = request.Role,
+                Phone = request.Phone,
                 CreatedAt = currentTimestamp,
                 UpdatedAt = currentTimestamp,
                 ActivateToken = activationCode,
@@ -81,6 +82,7 @@ public class UserService(UserRepository userRepository)
             resp.Role = request.Role ?? resp.Role;
             resp.IsActive = request.IsActive ?? resp.IsActive;
             resp.Email = request.Email ?? resp.Email;
+            resp.Phone = request.Phone ?? resp.Phone;
             resp.UpdatedAt = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             await _userRepository.Update(resp);
             return new BaseResponse<bool> { Success = true, Data = true };
@@ -129,6 +131,7 @@ public class UserService(UserRepository userRepository)
                 Email = x.Email,
                 FullName = x.FullName,
                 Role = x.Role,
+                Phone = x.Phone,
             });
             return new BaseResponse<List<GetUserDto>> { Success = true, Data = users.ToList() };
         }
@@ -169,6 +172,7 @@ public class UserService(UserRepository userRepository)
                 Email = user.Email,
                 FullName = user.FullName,
                 Role = user.Role,
+                Phone = user.Phone,
             };
             return new BaseResponse<GetUserDto>(resp) { Success = true };
         }
